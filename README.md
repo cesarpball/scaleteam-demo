@@ -19,7 +19,7 @@ Once you have created the Terraform Bucket and the DynamoDB table, please,  [mod
 terraform init
 ```
 2. Apply Terraform plan:
-````
+```
 terraform plan 
 ```
 3. Apply Terraform
