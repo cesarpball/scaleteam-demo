@@ -95,20 +95,13 @@ resource "aws_security_group" "sg_task" {
 
 
 resource "aws_security_group_rule" "sg_task_80" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  security_group_id = aws_security_group.sg_task.id
- source_security_group_id = aws_security_group.sg_alb.id
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.sg_task.id
+  source_security_group_id = aws_security_group.sg_alb.id
 }
-# resource "aws_vpc_security_group_ingress_rule" "sg_task_80" {
-#   security_group_id = aws_security_group.sg_task.id
-#   prefix_list_id    = aws_security_group.sg_alb
-#   from_port         = 80
-#   ip_protocol       = "tcp"
-#   to_port           = 80
-# }
 
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_task_traffic_ipv4" {

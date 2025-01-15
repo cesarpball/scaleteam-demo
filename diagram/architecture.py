@@ -1,7 +1,6 @@
 from diagrams import Diagram, Cluster
 from diagrams.aws.compute import ECS, ElasticContainerServiceContainer
 from diagrams.aws.network import VPC, PrivateSubnet, PublicSubnet, InternetGateway, NATGateway, ALB
-from diagrams.aws.general import GenericDatabase
 from diagrams.aws.network import Route53
 
 

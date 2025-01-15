@@ -3,28 +3,49 @@
 - IAM user / role with permissions to execute Terraform.
 
 
-
 How to execute:
 
 1. Configure AWS credentials
 2. Create Terraform Bucket in AWS 
 3. Create DynamoDB table for Terraform state lock
-4. Initialize Terraform
- and apply the configuration
-terraform init
-terraform plan
-terraform apply -auto-approve
 
+Those can be created also using Terraform using a local state, and once its created, migrated to the remote state.
+
+Once you have created the Terraform Bucket and the DynamoDB table, please,  [modify the backend configuration](backend.tf#L7-L11)  in the Terraform configuration files to use the Terraform Bucket and DynamoDB table for storing the Terraform state and locking it.
+
+### Execute Terraform
+1. Initialize Terraform: 
+```
+terraform init
+```
+2. Apply Terraform plan:
+````
+terraform plan 
+```
+3. Apply Terraform
+```
+terraform apply
+```
 
 ## Diagram
+The provided diagram illustrates the Fargate cluster architecture, which includes the following components:
+- Virtual Private Cloud (VPC): 3 privates and 3 public subnets with an internet gateway to allow internet access and a nat gateway to provide outbound internet access for resources in the private subnets.
+- Application Load Balancer (ALB)
+- ECS Cluster
+- ECS Service
+- ECS Task Definition
+
+The ALB is under the public subnets while the Fargate containers are under the private subnets. This allows the application to be accessible from the internet while keeping the containers secure within the private network.
+
+We are pulling directly from the Dock Hub repository using the image URI, but we could also use a private ECR repository to store our Docker images for more control and security.
 
 ![ECS Architecture](diagram/fargate_cluster.png)
 
 ## Improvements.
 
-- Create and generate a SSL certificate to have secured connection between the client and the application. This SSL certificate can be generated using AWS Certificate Manager and add it to the ALB listener.
+- Create and generate a SSL certificate to have secured connection between the client and the application. This SSL certificate can be generated using AWS Certificate Manager and add it to the ALB listener. I could not create because it requires having a custom domain name.
 - Add autoscaling policies to the ECS service to automatically scale the number of tasks based on CPU and memory utilization.
-- Implement secure access to the application by integrating AWS IAM with the Application Load Balancer. This will allow you to control access to the application based on IAM policies.
+- Implement secure access to the application by integrating Amazon Cognito for user authentication and authorization creating a Amazon Corn ito User Pool and Amazon Cognito Identity Pool. Then, on the ALB, configure the listener to use the Amazon Cognito to authenticate users before accessing the application.
 - Add CloudWatch logging and monitoring to the ECS task and service to gain visibility into the application's performance and health.
 - Implement CI/CD pipelines to automate the deployment of the application, reducing manual effort and ensuring consistent and reliable deployments.
 - Add Environments (e.g., dev, staging, prod) to the Terraform configuration to manage different deployment stages and their respective configurations.
@@ -53,6 +74,9 @@ terraform apply -auto-approve
 | [aws_lb_listener.scale](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_target_group.scale](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_security_group.sg_alb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_security_group.sg_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_security_group_rule.sg_task_80](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_vpc_security_group_egress_rule.allow_all_task_traffic_ipv4](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.allow_all_traffic_ipv4](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_ingress_rule.sg_alb_443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) | resource |
 
@@ -79,7 +103,6 @@ terraform apply -auto-approve
 
 | Name | Description |
 |------|-------------|
-| <a name="output_dns_alb"></a> [dns\_alb](#output\_dns\_alb) | n/a |
-
+| <a name="output_dns_alb"></a> [dns\_alb](#output\_dns\_alb) | DNS value for the ALB |
 
 

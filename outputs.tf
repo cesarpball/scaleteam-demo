@@ -1,3 +1,4 @@
 output "dns_alb" {
-  value = aws_lb.scale.dns_name
+  description = "DNS value for the ALB"
+  value       = aws_lb.scale.dns_name
 }
